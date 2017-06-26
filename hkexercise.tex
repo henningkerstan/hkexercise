@@ -1,0 +1,308 @@
+% !TEX encoding = UTF-8 Unicode
+%
+%% hkexercise.tex
+%% Documentation for the hkexercise package
+%%
+%% Copyright (c) 2017 Henning Kerstan
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+%
+% This work has the LPPL maintenance status `maintained'.
+% 
+% The Current Maintainer of this work is Henning Kerstan.
+%
+% This work consists of the files `hkexercise.sty' and `hkexercise.tex'.
+%
+
+
+% use KOMA article in twocolumn layout
+\documentclass[
+  twocolumn,%
+  fontsize=9pt,%        this gives roughly 80 characters per line in twocolumns
+  DIV=calc,%            calculate typearea
+  numbers=noendperiod%  don't print periods at end of numbers
+]{scrartcl}
+
+
+% font selection & set up
+\usepackage{charter} % Charter as serif font (main text)
+\usepackage{biolinum} % Linux Biolinum as sans serif font (headings)
+\usepackage[scaled=0.85]{beramono} % Bera Mono as monospace font (code listings)
+\usepackage{eulervm} % Euler virtual math fonts
+\RequirePackage[T1]{fontenc} % T1 fontenc
+\usepackage[final]{microtype}
+\setkomafont{captionlabel}{\sffamily\small\bfseries}
+\setkomafont{caption}{\sffamily\small}
+\usepackage[english]{babel}
+
+
+% load the hkexercise package
+\usepackage{hkexercise}
+
+
+% load xcolor for colors in code listings
+\usepackage[dvipsnames]{xcolor}
+
+
+% set up code listings
+% - highlight standard LaTeX keywords in bold gray
+% - highlight hkexercise keywords in bold navy blue
+\usepackage{listings} 
+\lstset{%
+  language=[LaTeX]TeX,%
+  basicstyle=\small\ttfamily,%
+  keywordstyle=\bfseries\color{black!70},%
+  keywords={equal},%
+  identifierstyle=,%
+  commentstyle=\itshape,% 
+  stringstyle=,%
+  showstringspaces=false,%
+  emphstyle=\color{NavyBlue}\bfseries,%
+  breaklines=true,%
+  emph={%
+    AtBeginExercise,%
+    AtEndExercise,%
+    points,%
+    itempoints,%
+    totalpoints,%
+    numberofexercises,%
+    currentexercisetitle,%
+    currentexercisepoints,%
+    currentexercisenumber,%
+    exercise%
+  }
+} 
+
+
+% obtain package version using xstring package to obtain 15 leftmost characters in the internal package version string
+\makeatletter
+\usepackage{xstring}
+\newcommand{\packageversion}{\StrLeft{\expandafter\csname ver@hkexercise.sty\endcsname}{15}}
+\makeatother
+
+
+% use forloop package to automatically loop through all exercises
+\usepackage{forloop}
+
+
+% use gitinfo2 package for displaying git commit information in footer
+\usepackage[mark]{gitinfo2}
+
+
+% set up metadata
+\author{Henning Kerstan}
+\title{%
+  The hkexercise Package\thanks{%
+    \url{https://github.com/henningkerstan/hkexercise}%
+  }
+}
+\subtitle{\packageversion}
+\date{}
+
+
+% use enumitem package and set up enumerate/itemize layout
+\usepackage{enumitem}
+\setlist[itemize]{%
+  leftmargin=*,%
+  itemsep=5pt,%
+  topsep=5pt,%
+  parsep=0pt,%
+  partopsep=0pt,%
+  label=\textcolor{black}{$\triangleright$}%
+}%
+\setlist[enumerate]{%
+  leftmargin=*,%
+  itemsep=5pt,%
+  topsep=5pt,%
+  parsep=0pt,%
+  partopsep=0pt,%
+  label=\textcolor{black}{\arabic*.},%
+  ref=\arabic*%
+}%
+
+
+% use hyperref for hyperlinks
+\usepackage[
+  unicode=true,%
+  pdfa,%
+  colorlinks=false,%
+  linktoc=page,
+  pdfauthor={Henning Kerstan},
+  pdftitle={The hkexercise Package}
+]{hyperref}
+
+
+% start of the actual document
+\begin{document}
+\maketitle
+\begin{abstract}
+\noindent\itshape The hkexercise package provides an exercise environment and several macros to count points for exercises. The actual typesetting of an exercise can be defined by the user.
+\end{abstract}
+
+\section{Introduction and Usage}
+This package can be used to facilitate exercise counting and exercise point counting in a \LaTeX-document. It counts the number of exercises (for example, it counted that this document has \emph{\numberofexercises\ exercises}) and it sums all the points of the exercises (for example, the package determined that the exercises in this document have a total of \emph{\totalpoints\ points}). 
+
+Especially for exams it is also common to have an overview of all exercises and their maximal points. This is also supported by this package by providing a macro to retrieve the points of each exercise. For example, the exercise overview for this document is given in Figure~\ref{fig:exercise-overview} below.
+
+\newcounter{exercisenumber}
+\newcounter{exercisedisplaynumber}
+\setcounter{exercisedisplaynumber}{0}
+
+\begin{figure}[h]\centering
+  \begin{tabular}{l|r}
+    Exercise & Points\\
+    \hline
+    \forloop{exercisenumber}{0}{\value{exercisenumber} < \numberofexercises}{%
+      \stepcounter{exercisedisplaynumber}%
+      \theexercisedisplaynumber & \getpoints{\theexercisenumber}\\%
+    }%
+    $\Sigma$ & \totalpoints%
+  \end{tabular}
+  \label{fig:exercise-overview}
+  \caption{Overview of all exercises}
+\end{figure}
+
+\noindent This package only provides functionality for counting and adding points, the actual typesetting of the exercise can be entirely determined by the user.
+
+\subsection{Load the Package}
+To use this package copy the file `hkexercise.sty' into the same folder as your document (or, if you plan to use it more often, copy it into your local texmf directory) and load it by typing
+\begin{lstlisting}
+  \usepackage{hkexercise}
+\end{lstlisting}
+anywhere in your document's preamble. There are no options and this package does not require any other packages to be loaded (it loads the \texttt{ifthen} package).
+
+\subsection{Typeset a First Exercise}
+Now you can typeset your first exercise using the following code.
+
+\begin{lstlisting}
+  \begin{exercise}[Simple Addition]
+    What is 1+1?\points{2.5}
+  \end{exercise}
+\end{lstlisting}
+
+\noindent If you typeset this without further modifications it will yield the following result.
+
+\begin{exercise}[Simple Addition]
+  What is $1+1$?\points{2.5}
+\end{exercise} 
+
+\noindent As you can see, inside the code we used \textcolor{NavyBlue}{\ttfamily\bfseries \textbackslash points\{2.5\}} to assign this exercise a total of 2.5 points. These points were printed flushed right in the exercise header.
+
+\subsection{Play with the Points}
+If you issue the  \textcolor{NavyBlue}{\ttfamily\bfseries \textbackslash points\{...\}} macro multiple times within an exercise environment, the points will add up. Thus let us consider the following code.
+
+\begin{lstlisting}
+  \begin{exercise}[Simple Equation]
+    Determine a number $x$ such that $3 \cdot x = 15$\points{1.5} and explain how you did that.\points{3}
+  \end{exercise} 
+\end{lstlisting}
+
+\noindent This code will typeset as follows.
+
+\begin{exercise}[Simple Equation]
+  Determine a number $x$ such that $3 \cdot x = 15$\points{1.5} and explain how you did that.\points{3}
+\end{exercise}
+
+\noindent As expected, the points were added to obtain the total 1.5 + 3 = 4.5 points which again is printed in the exercise's header. 
+
+This feature is especially handy if you have an exercise with several subparts (items). In this case you can also use the \textcolor{NavyBlue}{\ttfamily\bfseries \textbackslash itempoints\{...\}} macro which does the same as the \textcolor{NavyBlue}{\ttfamily\bfseries \textbackslash points\{...\}} macro but additionally also prints the supplied points flush right. We rewrite our previous exercise with an enumerate environment as follows.
+
+\begin{lstlisting}
+  \begin{exercise}[Simple Equation]\vspace{-1.5em}
+    \begin{enumerate}
+      \item Determine $x$ such that $3 \cdot x = 15$.\itempoints{1.5}
+      \item Explain how you arrived at your solution in the previous part.\itempoints{3}
+    \end{enumerate}
+  \end{exercise} 
+\end{lstlisting}
+
+\noindent This code results in the following output.
+\begin{exercise}[Simple Equation]\vspace{-1.5em}
+  \begin{enumerate}
+    \item Determine $x$ such that $3 \cdot x = 15$.\itempoints{1.5}
+    \item Explain how you arrived at your solution in the previous part.\itempoints{3}
+  \end{enumerate}
+\end{exercise} 
+
+\subsection{Total Points}
+If you have typeset your exercises, there are a few commands to obtain the total number of points.
+
+\begin{itemize}
+  \item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash numberofexercises} expands to the number of all exercises in the document.
+  \item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash totalpoints} expands to the sum of all points of all exercises in the document. 
+  \item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash getpoints\{x\}} expands to the total points of the exercise number x (starting with $0$). 
+\end{itemize}
+Note that all of this is retrieved from the .aux file so to get the right numbers here, you have to compile your document twice. As a simple example we take the following code.
+
+
+\begin{lstlisting}[emph={numberofexercises,totalpoints,getpoints}]
+  Exercise 0 has \getpoints{0} points, there are \numberofexercises\ exercises with a total of \totalpoints\ points.
+\end{lstlisting}
+
+\noindent This compiles to the following sentence.\smallskip
+
+Exercise 0 has \getpoints{0} points, there are \numberofexercises\ exercises with a total of \totalpoints\ points.
+
+
+\section{Exercise Layout}
+This package only provides a minimal layout style for an exercise which is \emph{not meant to be actually used}. It is just included to test the package functionality. In order to define how your exercise looks like, you can use the two commands listed below.
+\begin{lstlisting}
+  \AtBeginExercise{%
+    % your code
+  }
+
+  \AtEndExercise{%
+    % your code
+  }
+\end{lstlisting}
+For example, the minimal example style is implemented using the following code.
+\begin{lstlisting}
+ \AtBeginExercise{%
+   ~\smallskip\\\sffamily%
+   \ifthenelse{\equal{\currentexercisetitle}{}}%
+     {\textbf{Exercise~\currentexercisenumber}}%
+     {%
+       \textbf{Exercise~\currentexercisenumber:} %
+       \currentexercisetitle%
+     }%
+   \,~\hfill\textbf{(\currentexercisepoints~Points)}%
+   \smallskip\\\noindent\normalfont%
+ }
+ \AtEndExercise{~\smallskip\\}%
+\end{lstlisting}
+As you can see, there are three useful macros that can be used for defining the exercise layout:
+\begin{itemize}
+  \item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexercisetitle} expands to the exercise title supplied as (optional) argument to the exercise environment.
+  \item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexercisenumber} expands to the current internal exercise number (starting at $0$). 
+  \item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexercisepoints} expands to the current exercise total points. Note that this is retrieved from the .aux file so to get the right number here, you have to compile your document twice.
+\end{itemize}
+
+\noindent You might want to use a (sub-)section command for exercises or in a longer document use a theorem environment.
+
+\section{Copyright and License}
+Copyright \copyright\ 2017 Henning Kerstan.\medskip
+
+\noindent This work may be distributed and/or modified under the conditions of the LaTeX Project Public License, either version 1.3 of this license or (at your option) any later version. The latest version of this license is in\medskip
+ 
+   \url{http://www.latex-project.org/lppl.txt}\medskip
+   
+\noindent and version 1.3 or later is part of all distributions of LaTeX version 2005/12/01 or later.\medskip
+ 
+ \noindent This work has the LPPL maintenance status `maintained'.\medskip
+ 
+ \noindent The Current Maintainer of this work is Henning Kerstan.\medskip
+
+ \noindent This work consists of the files `hkexercise.sty' and `hkexercise.tex'.
+
+
+\section{Version History}
+\begin{description}
+\item[2017/06/26 v1.0] The initial version of this package is published on GitHub.
+\end{description}
+\end{document}

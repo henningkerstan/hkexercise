@@ -80,10 +80,10 @@
 } 
 
 
-% obtain package version using xstring package to obtain 15 leftmost characters in the internal package version string
+% obtain package version using xstring package to obtain 17 leftmost characters in the internal package version string
 \makeatletter
 \usepackage{xstring}
-\newcommand{\packageversion}{\StrLeft{\expandafter\csname ver@hkexercise.sty\endcsname}{15}}
+\newcommand{\packageversion}{\StrLeft{\expandafter\csname ver@hkexercise.sty\endcsname}{17}}
 \makeatother
 
 
@@ -303,6 +303,7 @@ Copyright \copyright\ 2017 Henning Kerstan.\medskip
 
 \section{Version History}
 \begin{description}
+\item[2017/06/26 v1.0.1] Redefined \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexercisepoints} so it can be used within section command. 
 \item[2017/06/26 v1.0] The initial version of this package is published on GitHub.
 \end{description}
 \end{document}

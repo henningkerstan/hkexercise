@@ -24,7 +24,7 @@
 % package identification
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{hkexercise}[%
-  2017/06/26 v1.0 %
+  2017/06/26 v1.1-alpha %
   count exercises and points%
 ]
 
@@ -56,7 +56,11 @@
 \providecommand{\currentexercisetitle}{}
 
 \providecommand{\currentexercisepoints}{%
-  \hkexercise@readfromaux{points@\thehkexercise@exercisecount}%
+  \ifcsname hkexercise@points@\currentexercisenumber\endcsname%
+    \@nameuse{hkexercise@points@\currentexercisenumber}%
+  \else%
+    \textbf{??}% TODO:issue package warning in such a way that it can be used also in section commands
+  \fi%
 }
 
 \providecommand{\currentexercisenumber}{%
@@ -117,7 +121,7 @@
 
 
 % aux storage function (key-value store using #1 as key and #2 as value)
-\newcommand\hkexercise@storetoaux[2]{% 
+\newcommand{\hkexercise@storetoaux}[2]{% 
   \immediate\write\@auxout{%
     \string\global\string\long\string\@namedef{hkexercise@#1}{#2}%
   }%
@@ -125,14 +129,14 @@
 
 
 % aux retrieval
-\newcommand\hkexercise@readfromaux[1]{%
+\newcommand{\hkexercise@readfromaux}[1]{%
   \ifcsname hkexercise@#1\endcsname%
     \@nameuse{hkexercise@#1}%
   \else%
     \textbf{??}%
     \PackageWarning{hkexercise}{%
-      Key 'hkexercise@#1' not found in aux file. Maybe you need to recompile?
-    }
+      Key 'hkexercise@#1' not found in aux file. Maybe you need to recompile?%
+    }%
   \fi%
 }
 
@@ -159,7 +163,7 @@
     \renewcommand{\numberofexercises}{%
       \hkexercise@readfromaux{numberofexercises}%
     }%
-  \fi
+  \fi%
   %
   \renewcommand{\totalpoints}{\hkexercise@readfromaux{points@total}}%
 }

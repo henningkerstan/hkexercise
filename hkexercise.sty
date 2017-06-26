@@ -24,7 +24,7 @@
 % package identification
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{hkexercise}[%
-  2017/06/26 v1.0.1 %
+  2017/06/26 v1.1 %
   count exercises and points%
 ]
 
@@ -40,6 +40,10 @@
 \RequirePackage{ifthen}
 
 
+% avoid putting exercises in exercises
+\newif\if@hkexercise@withinexercise%
+\global\@hkexercise@withinexercisefalse%
+
 % counter to store number of exercises, lengths to store points 
 \newcounter{hkexercise@exercisecount}
 \newlength{\hkexercise@currentexercisepoints}
@@ -49,6 +53,9 @@
 % macros to get total points and total number of exercises (whole document)
 \providecommand{\totalpoints}{0}
 \providecommand{\numberofexercises}{0}
+
+% macros to allow nesting of exercises
+\providecommand{\hkexercise@parentexercise}{}
 
 
 % macros to get info about current exercise
@@ -76,10 +83,21 @@
   \renewcommand{\hkexercise@end}{#1}
 }
 
+% the same for subexercises
+\providecommand{\AtBeginSubexercise}[1]{
+  \renewcommand{\hkexercise@sub@begin}{#1}
+}
+
+\providecommand{\AtEndExercise}[1]{
+  \renewcommand{\hkexercise@sub@end}{#1}
+}
+
 
 % storage for the hooks 
 \newcommand{\hkexercise@begin}{}
 \newcommand{\hkexercise@end}{}
+\newcommand{\hkexercise@sub@begin}{}
+\newcommand{\hkexercise@sub@end}{}
 
 
 % a very simple default exercise style
@@ -143,14 +161,20 @@
 
 % exercise environment; optional parameter is title of the respective exercise
 \newenvironment{exercise}[1][]{%
-  \setlength{\hkexercise@currentexercisepoints}{0pt}%
-  \global\hkexercise@currentexercisepoints=\hkexercise@currentexercisepoints%
-  \renewcommand{\currentexercisetitle}{#1}%
-  \hkexercise@begin%
+  \if@hkexercise@withinexercise
+    \PackageError{hkexercise}{You cannot nest exercise environments}%
+  \else
+    \global\@hkexercise@withinexercisetrue%
+    \setlength{\hkexercise@currentexercisepoints}{0pt}%
+    \global\hkexercise@currentexercisepoints=\hkexercise@currentexercisepoints%
+    \renewcommand{\currentexercisetitle}{#1}%
+    \hkexercise@begin%
+  \fi
 }{%
   \hkexercise@end%
   \hkexercise@storetoaux{points@\thehkexercise@exercisecount}{\strip@pt\hkexercise@currentexercisepoints}%
   \stepcounter{hkexercise@exercisecount}%
+  \global\@hkexercise@withinexercisefalse%
 }
 
 

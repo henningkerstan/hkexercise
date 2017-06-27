@@ -43,7 +43,7 @@
 
 
 % load the hkexercise package
-\usepackage{hkexercise}
+\usepackage{hkexercise} 
 
 
 % load xcolor for colors in code listings
@@ -251,6 +251,18 @@ This feature is especially handy if you have an exercise with several subparts (
       \item Do step 2.\itempoints{2.5} 
     \end{enumerate}
   \end{subexercise}
+
+  and some points in the exercise \points{4}
+\end{exercise}
+
+\begin{exercise}
+  Another one
+  \begin{subexercise}
+    Yse \points{3}
+  \end{subexercise}
+  \begin{subexercise}
+    Yse \points{2}
+  \end{subexercise}
 \end{exercise}
 
 \subsection{Total Points}
@@ -326,6 +338,7 @@ Copyright \copyright\ 2017 Henning Kerstan.\medskip
 
 \section{Version History}
 \begin{description}
+\item[2017/06/27 v1.1.0] Introduction of subexercises. Added several checks to avoid use of commands like \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexercisepoints} outside of exercise environments. New option `customlayout' disables built in exercise layout.
 \item[2017/06/26 v1.0.1] Redefined \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexercisepoints} so it can be used within section command. 
 \item[2017/06/26 v1.0] The initial version of this package is published on GitHub.
 \end{description}

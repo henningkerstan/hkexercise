@@ -29,15 +29,26 @@
 ]
 
 
-% this package does not have any options
+
+% choose predefined layout
+\newif\if@hkexercise@usecustomlayout%
+\newif\if@hkexercise@exercise@layoutdefined%
+\newif\if@hkexercise@subexercise@layoutdefined%
+
+\DeclareOption{customlayout}{
+  % do not use built in testing layout 
+  \@hkexercise@usecustomlayouttrue%
+}
+
+% this package does not have any other options
 \DeclareOption*{
   \PackageWarning{hkexercise}{Unknown option '\CurrentOption'}
 }
 \ProcessOptions\relax
 
 
-% load ifthen package (used for minimal exercise style)
-\RequirePackage{ifthen}
+
+
 
 
 % avoid putting exercises in exercises
@@ -105,7 +116,8 @@
 
 % hooks to modify the exercise typesetting
 \providecommand{\AtBeginExercise}[1]{
-  \renewcommand{\hkexercise@begin}{#1}
+  \renewcommand{\hkexercise@begin}{#1}%
+  \@hkexercise@exercise@layoutdefinedtrue%
 }
 
 \providecommand{\AtEndExercise}[1]{
@@ -115,9 +127,10 @@
 % the same for subexercises
 \providecommand{\AtBeginSubexercise}[1]{
   \renewcommand{\hkexercise@sub@begin}{#1}
+  \@hkexercise@subexercise@layoutdefinedtrue%
 }
 
-\providecommand{\AtEndExercise}[1]{
+\providecommand{\AtEndSubexercise}[1]{
   \renewcommand{\hkexercise@sub@end}{#1}
 }
 
@@ -130,31 +143,34 @@
 
 
 % a very simple default exercise style
-\AtBeginExercise{%
-  ~\smallskip\\\sffamily%
-  \ifthenelse{\equal{\currentexercisetitle}{}}%
-    {\textbf{Exercise~\currentexercisenumber}} % empty title
-    {%
-    	\textbf{Exercise~\currentexercisenumber:} %
-	\currentexercisetitle%
-    }% non-empty title
-  \,~\hfill\textbf{(\currentexercisepoints~Points)}%
-  \smallskip\\\noindent\normalfont%
-}
-\AtEndExercise{~\smallskip\\}
-
-\AtBeginSubexercise{%
-  ~\smallskip\\\sffamily%
-  \ifthenelse{\equal{\currentsubexercisetitle}{}}%
-    {\emph{Exercise~\currentexercisenumber.\currentsubexercisenumber}} % empty title
-    {%
-    	\emph{Exercise~\currentexercisenumber.\currentsubexercisenumber:} %
-	\emph{\currentsubexercisetitle}%
-    }% non-empty title
-  \,~\hfill\emph{(\currentsubexercisepoints~Points)}%
-  \smallskip\\\noindent\normalfont%
-}
-%\AtEndSubexercise{~\smallskip\\}
+\if@hkexercise@usecustomlayout\else%
+  \RequirePackage{ifthen}%
+  \AtBeginExercise{%
+    ~\smallskip\\\sffamily%
+    \ifthenelse{\equal{\currentexercisetitle}{}}%
+      {\textbf{Exercise~\currentexercisenumber}} % empty title
+      {%
+        \textbf{Exercise~\currentexercisenumber:} %
+    \currentexercisetitle%
+      }% non-empty title
+    \,~\hfill\textbf{(\currentexercisepoints~Points)}%
+    \smallskip\\\noindent\normalfont%
+  }
+  \AtEndExercise{~\smallskip\\}
+  %
+  \AtBeginSubexercise{%
+    ~\smallskip\\\sffamily%
+    \ifthenelse{\equal{\currentsubexercisetitle}{}}%
+      {\emph{Exercise~\currentexercisenumber.\currentsubexercisenumber}} % empty title
+      {%
+        \emph{Exercise~\currentexercisenumber.\currentsubexercisenumber:} %
+    \emph{\currentsubexercisetitle}%
+      }% non-empty title
+    \,~\hfill\emph{(\currentsubexercisepoints~Points)}%
+    \smallskip\\\noindent\normalfont%
+  }
+  \AtEndSubexercise{~\\}
+\fi
 
 
 % points commands sets points (additive within an exercise environment)
@@ -211,15 +227,19 @@
 
 % exercise environment; optional parameter is title of the respective exercise
 \newenvironment{exercise}[1][]{%
-  \if@hkexercise@inexercise
+  \if@hkexercise@inexercise%
     \PackageError{hkexercise}{You cannot nest exercise environments}%
-  \else
-    \global\@hkexercise@inexercisetrue%
-    \setlength{\hkexercise@currentexercisepoints}{0pt}%
-    \global\hkexercise@currentexercisepoints=\hkexercise@currentexercisepoints%
-    \renewcommand{\currentexercisetitle}{#1}%
-    \hkexercise@begin%
   \fi
+  %
+  \if@hkexercise@exercise@layoutdefined\else%
+    \PackageError{hkexercise}{Option `customlayout' requires you to define an exercise layout using at least `\string\AtBeginExercise{...}'}
+  \fi 
+  %
+  \global\@hkexercise@inexercisetrue%
+  \setlength{\hkexercise@currentexercisepoints}{0pt}%
+  \global\hkexercise@currentexercisepoints=\hkexercise@currentexercisepoints%
+  \renewcommand{\currentexercisetitle}{#1}%
+  \hkexercise@begin%
 }{%
   \hkexercise@end%
   \hkexercise@storetoaux{points@\thehkexercise@exercisecount}{\strip@pt\hkexercise@currentexercisepoints}%
@@ -231,15 +251,18 @@
 
 % exercise environment; optional parameter is title of the respective exercise
 \newenvironment{subexercise}[1][]{%
-  \if@hkexercise@insubexercise
+  \if@hkexercise@insubexercise%
     \PackageError{hkexercise}{You cannot nest subexercise environments}%
-  \else
-    \global\@hkexercise@insubexercisetrue%
-    \setlength{\hkexercise@currentsubexercisepoints}{0pt}%
-    \global\hkexercise@currentsubexercisepoints=\hkexercise@currentsubexercisepoints%
-    \renewcommand{\currentsubexercisetitle}{#1}%
-    \hkexercise@sub@begin%
-  \fi
+  \fi%
+  %
+  \if@hkexercise@subexercise@layoutdefined\else%
+    \PackageError{hkexercise}{Option `customlayout' requires you to define a subexercise layout using at least `\string\AtBeginSubexercise{...}'}
+  \fi%
+  \global\@hkexercise@insubexercisetrue%
+  \setlength{\hkexercise@currentsubexercisepoints}{0pt}%
+  \global\hkexercise@currentsubexercisepoints=\hkexercise@currentsubexercisepoints%
+  \renewcommand{\currentsubexercisetitle}{#1}%
+  \hkexercise@sub@begin%
 }{%
   \hkexercise@sub@end%
   \hkexercise@storetoaux{points@\thehkexercise@exercisecount.\thehkexercise@subexercisecount}{\strip@pt\hkexercise@currentsubexercisepoints}%

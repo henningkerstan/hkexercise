@@ -57,17 +57,26 @@
 \lstset{%
   language=[LaTeX]TeX,%
   basicstyle=\small\ttfamily,%
-  keywordstyle=\bfseries\color{black!70},%
+  keywordstyle=,%\color{black!70},%
   keywords={equal},%
   identifierstyle=,%
-  commentstyle=\itshape,% 
+  commentstyle=\itshape\color{OliveGreen},% 
   stringstyle=,%
   showstringspaces=false,%
   emphstyle=\color{NavyBlue}\bfseries,%
   breaklines=true,%
+  backgroundcolor=\color{black!5},%
+  numbers=none,
+  xleftmargin=1ex,
+  xrightmargin=1ex,
+  numberstyle=\small\ttfamily, 
+  numbersep=1ex,
   emph={%
+    hkexercise,
     AtBeginExercise,%
-    AtEndExercise,%
+    AtEndExercise,
+    AtBeginExercisepart,%
+    AtEndExercisepart,%
     points,%
     itempoints,%
     totalpoints,%
@@ -76,10 +85,10 @@
     currentexercisepoints,%
     currentexercisenumber,%
     exercise,%
-    currentsubexercisetitle,%
-    currentsubexercisepoints,%
-    currentsubexercisenumber,%
-    subexercise,%
+    currentexerciseparttitle,%
+    currentexercisepartpoints,%
+    currentexercisepartnumber,%
+    exercisepart,%
     bonuspoints,%
     getbonuspoints,%
     customlayout,%
@@ -101,6 +110,10 @@
 
 % use gitinfo2 package for displaying git commit information in footer
 \usepackage[mark]{gitinfo2}
+
+
+% math examples
+\usepackage{amsmath,amssymb}
 
 
 % set up metadata
@@ -163,15 +176,16 @@ Especially for exams it is also common to have an overview of all exercises and 
 \setcounter{exercisedisplaynumber}{0}
 
 \begin{figure}[h]\centering
-  \begin{tabular}{l|r}
-    Exercise & Points\\
+  \begin{tabular}{l|p{1cm}|r}
+    \textbf{Exercise} & \textbf{Points} & \textbf{Max. Points}\\
     \hline
     \forloop{exercisenumber}{0}{\value{exercisenumber} < \numberofexercises}{%
       \stepcounter{exercisedisplaynumber}%
-      \theexercisedisplaynumber & \getpoints{\theexercisenumber}\\%
+      \theexercisedisplaynumber && \getpoints{\theexercisenumber}\\%
     }%
-    $\Sigma$ & \totalpoints\\\hline%
-    Bonus & \getbonuspoints
+    Sum && \totalpoints\\\hline%
+    Bonus && \getbonuspoints\\\hline%
+    Sum with Bonus && \totalpointswithbonus%
   \end{tabular}
   \label{fig:exercise-overview}
   \caption{Overview of all exercises}
@@ -182,34 +196,34 @@ Especially for exams it is also common to have an overview of all exercises and 
 \subsection{Load the Package}
 To use this package copy the file `hkexercise.sty' into the same folder as your document (or, if you plan to use it more often, copy it into your local texmf directory) and load it by typing
 \begin{lstlisting}
-  \usepackage{hkexercise}
+\usepackage{hkexercise}
 \end{lstlisting}
-anywhere in your document's preamble. There are no options and this package does not require any other packages to be loaded (it loads the \texttt{ifthen} package).
+anywhere in your document's preamble. 
 
 \subsection{Typeset a First Exercise}
 Now you can typeset your first exercise using the following code.
 
 \begin{lstlisting}
-  \begin{exercise}[Simple Addition]
-    What is 1+1?\points{2.5}
-  \end{exercise}
+\begin{exercise}[Simple Addition]
+  What is 1+1?\points{2.5}
+\end{exercise}
 \end{lstlisting}
 
 \noindent If you typeset this without further modifications it will yield the following result.
 
 \begin{exercise}[Simple Addition]
   What is $1+1$?\points{2.5}
-\end{exercise} 
-
-\noindent As you can see, inside the code we used \textcolor{NavyBlue}{\ttfamily\bfseries \textbackslash points\{2.5\}} to assign this exercise a total of 2.5 points. These points were printed flushed right in the exercise header.
+\end{exercise}
+%
+As you can see, inside the code we used \textcolor{NavyBlue}{\ttfamily\bfseries \textbackslash points\{2.5\}} to assign this exercise a total of 2.5 points. These points were printed flushed right in the exercise header.
 
 \subsection{Play with the Points}
 If you issue the  \textcolor{NavyBlue}{\ttfamily\bfseries \textbackslash points\{...\}} macro multiple times within an exercise environment, the points will add up. Thus let us consider the following code.
 
 \begin{lstlisting}
-  \begin{exercise}[Simple Equation]
-    Determine a number $x$ such that $3 \cdot x = 15$\points{1.5} and explain how you did that.\points{3}
-  \end{exercise} 
+\begin{exercise}[Simple Equation]
+  Determine a number $x$ such that $3 \cdot x = 15$\points{1.5} and explain how you did that.\points{3}
+\end{exercise} 
 \end{lstlisting}
 
 \noindent This code will typeset as follows.
@@ -223,12 +237,12 @@ If you issue the  \textcolor{NavyBlue}{\ttfamily\bfseries \textbackslash points\
 This feature is especially handy if you have an exercise with several subparts (items). In this case you can also use the \textcolor{NavyBlue}{\ttfamily\bfseries \textbackslash itempoints\{...\}} macro which does the same as the \textcolor{NavyBlue}{\ttfamily\bfseries \textbackslash points\{...\}} macro but additionally also prints the supplied points flush right. We rewrite our previous exercise with an enumerate environment as follows.
 
 \begin{lstlisting}
-  \begin{exercise}[Simple Equation]\vspace{-1.5em}
-    \begin{enumerate}
-      \item Determine $x$ such that $3 \cdot x = 15$.\itempoints{1.5}
-      \item Explain how you arrived at your solution in the previous part.\itempoints{3}
-    \end{enumerate}
-  \end{exercise} 
+\begin{exercise}[Simple Equation]\vspace{-1.5em}
+  \begin{enumerate}
+    \item Determine $x$ such that $3 \cdot x = 15$.\itempoints{1.5}
+    \item Explain how you arrived at your solution in the previous part.\itempoints{3}
+  \end{enumerate}
+\end{exercise} 
 \end{lstlisting}
 
 \noindent This code results in the following output.
@@ -239,7 +253,7 @@ This feature is especially handy if you have an exercise with several subparts (
   \end{enumerate}
 \end{exercise}
 
-\subsection{Count the Total Points}
+\subsection{Obtain the Total Points}
 If you have typeset your exercises, there are a few commands to obtain the total number of points.
 
 \begin{itemize}
@@ -247,99 +261,112 @@ If you have typeset your exercises, there are a few commands to obtain the total
   \item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash totalpoints} expands to the sum of all points of all exercises in the document. 
   \item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash getpoints\{x\}} expands to the total points of the exercise number x (starting with $0$). 
 \end{itemize}
-Note that all of this is retrieved from the .aux file so to get the right numbers here, you have to compile your document twice. As a simple example we take the following code.
+Note that the information for these macros is retrieved from the .aux file so to get the right numbers here, you have to compile your document twice. As a simple example for the above macros we take the following code.
 
 
 \begin{lstlisting}[emph={numberofexercises,totalpoints,getpoints}]
-  Exercise 0 has \getpoints{0} points, there are \numberofexercises\ exercises with a total of \totalpoints\ points.
+Exercise 0 has \getpoints{0} points, there are \numberofexercises\ exercises with a total of \totalpoints\ points.
 \end{lstlisting}
 
 \noindent This compiles to the following sentence.\smallskip
 
 Exercise 0 has \getpoints{0} points, there are \numberofexercises\ exercises with a total of \totalpoints\ points.
 
-\subsection{Bonus Points}
+\subsection{Use Bonus Points}
 In some courses it is possible to obtain a bonus for the exam. This is implemented here by providing the commands
 \begin{lstlisting}
-  \bonuspoints{x}
+\bonuspoints{x}
 \end{lstlisting}
 which will set the total amount of bonus points to $x$ bonuspoints (in this document we have used it with $x=10$\bonuspoints{10}) and
 \begin{lstlisting}
-  \getbonuspoints
+\getbonuspoints
 \end{lstlisting}
 which retrieves the current bonus points (in this document it expands to \getbonuspoints). Please note that the {bonuspoint} command differs from the \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash points} and \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash itempoint} commands in two aspects:
 \begin{itemize} 
 \item Bonus points are \emph{not additive}, i.e., if you use \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash bonuspoints} multiple times in your document, only the last occurence will set the bonus points.
 \item Bonus points are \emph{not} added to the total points. However, there is an additional macro 
 \begin{lstlisting}
-  \totalpointswithbonus
+\totalpointswithbonus
 \end{lstlisting}
 which will expand to the sum of \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash totalpoints} and \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash getbonuspoints}. In this document it thus expands to \totalpointswithbonus.
 \end{itemize}
 
-\subsection{Subexercises}
-... TODO: add text ...
+\subsection{Exerciseparts}
+If you have an exercise with many different parts (for example, if you have one overall topic with several areas), you can use the exercisepart environment to structure your exercise. Exerciseparts work exactly as exercises, but can only be used within an exercise environment. The following is a compiled example of such an exercise.
 
-\begin{exercise}[A task with subtasks]
-  Let us do something
-  \begin{subexercise}[First Part]
-    foo 12 \points{2}
-    and more \points{3}
-  \end{subexercise}
-
-  \begin{subexercise}[Second Part]
-    do some more\points{7}
-  \end{subexercise}
-
-  \begin{subexercise}[Third Part with Items]
-    Here are some enumerated tasks.
+\begin{exercise}[Calculus]
+  \vspace{-1em}
+  \begin{exercisepart}[Derivatives]
+    Determine the derivatives of the following functions.
     \begin{enumerate}
-      \item Do step 1.\itempoints{1.5}
-      \item Do step 2.\itempoints{2.5} 
+      \item $f\colon \mathbb{R} \to \mathbb{R}$, $f(x) = x^2+2x+3$ \itempoints{1}
+      \item $g\colon \mathbb{R} \to \mathbb{R}$, $g(x) = \exp(x^2)$ \itempoints{3}
     \end{enumerate}
-  \end{subexercise}
-
-  and some points in the exercise \points{4}
+  \end{exercisepart}\vspace{-1em}
+  \begin{exercisepart}[Maxima and Minima]
+    Determine the local maximum or minimum of the function $f\colon \mathbb{R} \to \mathbb{R}, f(x) = x^2+2x+3$.\points{3}
+  \end{exercisepart}\vspace{-1em}
 \end{exercise}
 
-\begin{exercise}
-  Another one
-  \begin{subexercise}
-    Yse \points{3}
-  \end{subexercise}
-  \begin{subexercise}
-    Yse \points{2}
-  \end{subexercise}
+\noindent It was typeset using the following code.
+
+\begin{lstlisting}
+\begin{exercise}[Calculus]
+  \vspace{-1em}
+  \begin{exercisepart}[Derivatives]
+    Determine the derivatives of the following functions.
+    \begin{enumerate}
+      \item $f\colon \mathbb{R} \to \mathbb{R}$, 
+            $f(x) = x^2+2x+3$ \itempoints{1}
+      \item $g\colon \mathbb{R} \to \mathbb{R}$, 
+            $g(x) = \exp(x^2)$ \itempoints{3}
+    \end{enumerate}
+  \end{exercisepart}\vspace{-1em}
+  \begin{exercisepart}[Maxima and Minima]
+    Determine the local maximum or minimum of the function 
+      $f\colon \mathbb{R} \to \mathbb{R}, 
+        f(x) = x^2+2x+3$.\points{3}
+  \end{exercisepart}
 \end{exercise}
+\end{lstlisting}
 
-
-
+\noindent Note that it is only possible to use the exercisepart environment within an exercise environment and it is not possible to nest exercisepart environments.
 
 \section{Exercise Layout}
-This package only provides a minimal layout style for an exercise which is \emph{not meant to be actually used}. It is just included to test the package functionality. In order to define how your exercise looks like, you can use the two commands listed below.
-\begin{lstlisting}
-  \AtBeginExercise{%
-    % your code
-  }
+This package only provides a minimal layout style for an exercise which is \emph{not meant to be actually used}. It is just included to test the package functionality.
 
-  \AtEndExercise{%
-    % your code
-  }
+\subsection{Disable the Built In Layout}
+If you define your own layout, you can load the package (but it is not necessary) with the \textcolor{NavyBlue}{\ttfamily\bfseries customlayout} option, i.e. by issuing the command 
+\begin{lstlisting}
+\usepackage[customlayout]{hkexercise}
+\end{lstlisting}
+which disables the built in exercise style. Note that in this case your document will only compile exercises or exerciseparts if you have defined the respective layout. Otherwise compilation will stop with a package error message.
+
+\subsection{Define Your Own Layout}
+In order to define how your exercise looks like, you can use the two commands listed below.
+\begin{lstlisting}
+\AtBeginExercise{%
+  % your code
+}
+
+\AtEndExercise{%
+  % your code
+}
 \end{lstlisting}
 For example, the minimal example style is implemented using the following code.
 \begin{lstlisting}
- \AtBeginExercise{%
-   ~\smallskip\\\sffamily%
-   \ifthenelse{\equal{\currentexercisetitle}{}}%
-     {\textbf{Exercise~\currentexercisenumber}}%
-     {%
-       \textbf{Exercise~\currentexercisenumber:} %
-       \currentexercisetitle%
-     }%
-   \,~\hfill\textbf{(\currentexercisepoints~Points)}%
-   \smallskip\\\noindent\normalfont%
- }
- \AtEndExercise{~\smallskip\\}%
+\AtBeginExercise{%
+  ~\smallskip\\\sffamily%
+  \ifthenelse{\equal{\currentexercisetitle}{}}%
+    {\textbf{Exercise~\currentexercisenumber}}%
+    {%
+      \textbf{Exercise~\currentexercisenumber:} %
+      \currentexercisetitle%
+    }%
+  \,~\hfill\textbf{(\currentexercisepoints~Points)}%
+  \smallskip\\\noindent\normalfont%
+}
+\AtEndExercise{~\smallskip\\}%
 \end{lstlisting}
 As you can see, there are three useful macros that can be used for defining the exercise layout:
 \begin{itemize}
@@ -348,27 +375,59 @@ As you can see, there are three useful macros that can be used for defining the 
   \item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexercisepoints} expands to the current exercise total points. Note that this is retrieved from the .aux file so to get the right number here, you have to compile your document twice.
 \end{itemize}
 
-\noindent You might want to use a (sub-)section command for exercises or in a longer document use a theorem environment.
+\noindent For exerciseparts you have essentially the same commands, i.e., you have the commands 
+\begin{itemize}
+\item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash AtBeginExercisePart\{...\}},
+\item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash AtEndExercisePart\{...\}}, 
+\item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexercisepartnumber}, 
+\item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexercisepartpoints} and 
+\item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexerciseparttitle}
+\end{itemize}
+which work as their counterparts for exercises.
+
+\subsection{Example Layout Using (Sub-)Sections}
+One option for a custom layout could be to use sections for exercises and subsections for exerciseparts. This can be achieved using the following code.
+
+\begin{lstlisting}
+\usepackage[customlayout]{hkexercise}
+\AtBeginExercise{%
+  \section{\texorpdfstring{%
+    \currentexercisetitle\hfill%
+    (\currentexercisepoints~Points)}{%
+    \currentexercisetitle (\currentexercisepoints~Points)}%
+  }
+}
+\AtEndExercise{\clearpage}
+\AtBeginExercisepart{%
+  \subsection{\texorpdfstring{%
+    \currentexerciseparttitle\hfill%
+    (\currentexercisepartpoints~Points)}{%
+    \currentexerciseparttitle %
+    (\currentexercisepartpoints~Points)}%
+  }
+}
+\AtEndExercisepart{}
+\end{lstlisting}
 
 \section{Copyright and License}
 Copyright \copyright\ 2017 Henning Kerstan.\medskip
 
 \noindent This work may be distributed and/or modified under the conditions of the LaTeX Project Public License, either version 1.3 of this license or (at your option) any later version. The latest version of this license is in\medskip
- 
-   \url{http://www.latex-project.org/lppl.txt}\medskip
-   
-\noindent and version 1.3 or later is part of all distributions of LaTeX version 2005/12/01 or later.\medskip
- 
- \noindent This work has the LPPL maintenance status `maintained'.\medskip
- 
- \noindent The Current Maintainer of this work is Henning Kerstan.\medskip
 
- \noindent This work consists of the files `hkexercise.sty' and `hkexercise.tex'.
+   \url{http://www.latex-project.org/lppl.txt}\medskip
+
+\noindent and version 1.3 or later is part of all distributions of LaTeX version 2005/12/01 or later.\medskip
+
+\noindent This work has the LPPL maintenance status `maintained'.\medskip
+
+\noindent The Current Maintainer of this work is Henning Kerstan.\medskip
+
+\noindent This work consists of the files `hkexercise.sty' and `hkexercise.tex'.
 
 
 \section{Version History}
 \begin{description}
-\item[2017/06/27 v1.1.0] This version introduces subexercises. Moreover several checks were added to avoid use of commands like \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexercisepoints} outside of exercise environments. New option \textcolor{NavyBlue}{\ttfamily\bfseries customlayout} disables built in exercise layout. Added \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash bonuspoint} commands.
+\item[2017/06/27 v1.1.0] This version introduces exerciseparts. Moreover several checks were added to avoid use of commands like \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexercisepoints} outside of exercise environments. New option \textcolor{NavyBlue}{\ttfamily\bfseries customlayout} disables built in exercise layout. Added \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash bonuspoint} commands.
 \item[2017/06/26 v1.0.1] Redefined \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexercisepoints} so it can be used within section command. 
 \item[2017/06/26 v1.0] The initial version of this package is published on GitHub.
 \end{description}

@@ -24,7 +24,7 @@
 % package identification
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{hkexercise}[%
-  2017/06/26 v1.1 %
+  2017/06/27 v1.1.0-rc0 %
   count exercises and points%
 ]
 
@@ -41,12 +41,20 @@
 
 
 % avoid putting exercises in exercises
-\newif\if@hkexercise@withinexercise%
-\global\@hkexercise@withinexercisefalse%
+\newif\if@hkexercise@inexercise%
+\global\@hkexercise@inexercisefalse%
+\newif\if@hkexercise@insubexercise%
+\global\@hkexercise@insubexercisefalse%
 
-% counter to store number of exercises, lengths to store points 
+
+% counters to store number of exercises
 \newcounter{hkexercise@exercisecount}
+\newcounter{hkexercise@subexercisecount}[hkexercise@exercisecount]
+
+
+% lengths to store points
 \newlength{\hkexercise@currentexercisepoints}
+\newlength{\hkexercise@currentsubexercisepoints}
 \newlength{\hkexercise@totalpoints}
 
 
@@ -54,15 +62,17 @@
 \providecommand{\totalpoints}{0}
 \providecommand{\numberofexercises}{0}
 
-% macros to allow nesting of exercises
-\providecommand{\hkexercise@parentexercise}{}
 
-
-% macros to get info about current exercise
+% macros to get info about current (sub-)exercise
 % (to be used in AtBeginExercise or AtEndExercise hooks)
 \providecommand{\currentexercisetitle}{}
+\providecommand{\currentsubexercisetitle}{}
 
 \providecommand{\currentexercisepoints}{%
+  \if@hkexercise@inexercise\else%
+    \PackageError{hkexercise}{'\string\currentexercisepoints' can only be used in exercise or subexercise environment}%
+  \fi%
+  %
   \ifcsname hkexercise@points@\currentexercisenumber\endcsname%
     \@nameuse{hkexercise@points@\currentexercisenumber}%
   \else%
@@ -70,8 +80,27 @@
   \fi%
 }
 
+
+\providecommand{\currentsubexercisepoints}{%
+  \if@hkexercise@insubexercise\else%
+    \PackageError{hkexercise}{'\string\currentsubexercisepoints' can only be used in subexercise environment}%
+  \fi%
+  %
+  \ifcsname hkexercise@points@\currentexercisenumber.\currentsubexercisenumber\endcsname%
+    \@nameuse{hkexercise@points@\currentexercisenumber.\currentsubexercisenumber}%
+  \else%
+    \textbf{??}% TODO:issue package warning in such a way that it can be used also in section commands
+  \fi%
+}
+
+
+
 \providecommand{\currentexercisenumber}{%
   \thehkexercise@exercisecount%
+}
+
+\providecommand{\currentsubexercisenumber}{%
+  \thehkexercise@subexercisecount%
 }
 
 % hooks to modify the exercise typesetting
@@ -114,13 +143,34 @@
 }
 \AtEndExercise{~\smallskip\\}
 
+\AtBeginSubexercise{%
+  ~\smallskip\\\sffamily%
+  \ifthenelse{\equal{\currentsubexercisetitle}{}}%
+    {\emph{Exercise~\currentexercisenumber.\currentsubexercisenumber}} % empty title
+    {%
+    	\emph{Exercise~\currentexercisenumber.\currentsubexercisenumber:} %
+	\emph{\currentsubexercisetitle}%
+    }% non-empty title
+  \,~\hfill\emph{(\currentsubexercisepoints~Points)}%
+  \smallskip\\\noindent\normalfont%
+}
+%\AtEndSubexercise{~\smallskip\\}
+
 
 % points commands sets points (additive within an exercise environment)
 \newcommand{\points}[1]{%
-  \addtolength{\hkexercise@currentexercisepoints}{#1 pt}%
-  \global\hkexercise@currentexercisepoints=\hkexercise@currentexercisepoints%
-  \addtolength{\hkexercise@totalpoints}{#1 pt}%
-  \global\hkexercise@totalpoints=\hkexercise@totalpoints%
+  \if@hkexercise@inexercise%
+    \addtolength{\hkexercise@currentexercisepoints}{#1 pt}%
+    \global\hkexercise@currentexercisepoints=\hkexercise@currentexercisepoints%
+    \addtolength{\hkexercise@totalpoints}{#1 pt}%
+    \global\hkexercise@totalpoints=\hkexercise@totalpoints%
+    \if@hkexercise@insubexercise%
+      \addtolength{\hkexercise@currentsubexercisepoints}{#1 pt}%
+      \global\hkexercise@currentsubexercisepoints=\hkexercise@currentsubexercisepoints%
+    \fi%
+  \else%
+    \PackageError{hkexercise}{\string\points{...} can only be used within exercise or subexercise environment.}%
+  \fi%
 }
 
 % itempoints calls points and displays points flush right for use in
@@ -161,10 +211,10 @@
 
 % exercise environment; optional parameter is title of the respective exercise
 \newenvironment{exercise}[1][]{%
-  \if@hkexercise@withinexercise
+  \if@hkexercise@inexercise
     \PackageError{hkexercise}{You cannot nest exercise environments}%
   \else
-    \global\@hkexercise@withinexercisetrue%
+    \global\@hkexercise@inexercisetrue%
     \setlength{\hkexercise@currentexercisepoints}{0pt}%
     \global\hkexercise@currentexercisepoints=\hkexercise@currentexercisepoints%
     \renewcommand{\currentexercisetitle}{#1}%
@@ -174,7 +224,27 @@
   \hkexercise@end%
   \hkexercise@storetoaux{points@\thehkexercise@exercisecount}{\strip@pt\hkexercise@currentexercisepoints}%
   \stepcounter{hkexercise@exercisecount}%
-  \global\@hkexercise@withinexercisefalse%
+  \global\@hkexercise@inexercisefalse%
+}
+
+
+
+% exercise environment; optional parameter is title of the respective exercise
+\newenvironment{subexercise}[1][]{%
+  \if@hkexercise@insubexercise
+    \PackageError{hkexercise}{You cannot nest subexercise environments}%
+  \else
+    \global\@hkexercise@insubexercisetrue%
+    \setlength{\hkexercise@currentsubexercisepoints}{0pt}%
+    \global\hkexercise@currentsubexercisepoints=\hkexercise@currentsubexercisepoints%
+    \renewcommand{\currentsubexercisetitle}{#1}%
+    \hkexercise@sub@begin%
+  \fi
+}{%
+  \hkexercise@sub@end%
+  \hkexercise@storetoaux{points@\thehkexercise@exercisecount.\thehkexercise@subexercisecount}{\strip@pt\hkexercise@currentsubexercisepoints}%
+  \stepcounter{hkexercise@subexercisecount}%
+  \global\@hkexercise@insubexercisefalse%
 }
 
 

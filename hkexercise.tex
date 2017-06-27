@@ -83,7 +83,7 @@
 % obtain package version using xstring package to obtain 17 leftmost characters in the internal package version string
 \makeatletter
 \usepackage{xstring}
-\newcommand{\packageversion}{\StrLeft{\expandafter\csname ver@hkexercise.sty\endcsname}{17}}
+\newcommand{\packageversion}{\StrBefore[2]{\expandafter\csname ver@hkexercise.sty\endcsname}{ }}
 \makeatother
 
 
@@ -228,7 +228,30 @@ This feature is especially handy if you have an exercise with several subparts (
     \item Determine $x$ such that $3 \cdot x = 15$.\itempoints{1.5}
     \item Explain how you arrived at your solution in the previous part.\itempoints{3}
   \end{enumerate}
-\end{exercise} 
+\end{exercise}
+
+\subsection{Subexercises}
+... TODO: add text ...  
+
+\begin{exercise}[A task with subtasks]
+  Let us do something
+  \begin{subexercise}[First Part]
+    foo 12 \points{2}
+    and more \points{3}
+  \end{subexercise}
+
+  \begin{subexercise}[Second Part]
+    do some more\points{7}
+  \end{subexercise}
+
+  \begin{subexercise}[Third Part with Items]
+    Here are some enumerated tasks.
+    \begin{enumerate}
+      \item Do step 1.\itempoints{1.5}
+      \item Do step 2.\itempoints{2.5} 
+    \end{enumerate}
+  \end{subexercise}
+\end{exercise}
 
 \subsection{Total Points}
 If you have typeset your exercises, there are a few commands to obtain the total number of points.

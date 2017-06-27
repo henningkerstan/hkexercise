@@ -29,14 +29,12 @@
 ]
 
 
-
-% choose predefined layout
+% switches for custom exercise layout
 \newif\if@hkexercise@usecustomlayout%
 \newif\if@hkexercise@exercise@layoutdefined%
 \newif\if@hkexercise@subexercise@layoutdefined%
 
-\DeclareOption{customlayout}{
-  % do not use built in testing layout 
+\DeclareOption{customlayout}{%
   \@hkexercise@usecustomlayouttrue%
 }
 
@@ -44,14 +42,10 @@
 \DeclareOption*{
   \PackageWarning{hkexercise}{Unknown option '\CurrentOption'}
 }
-\ProcessOptions\relax
+\ProcessOptions\relax%
 
 
-
-
-
-
-% avoid putting exercises in exercises
+% avoid nesting (i.e. putting exercises in exercises)
 \newif\if@hkexercise@inexercise%
 \global\@hkexercise@inexercisefalse%
 \newif\if@hkexercise@insubexercise%
@@ -67,6 +61,7 @@
 \newlength{\hkexercise@currentexercisepoints}
 \newlength{\hkexercise@currentsubexercisepoints}
 \newlength{\hkexercise@totalpoints}
+\newlength{\hkexercise@bonuspoints}
 
 
 % macros to get total points and total number of exercises (whole document)
@@ -91,7 +86,6 @@
   \fi%
 }
 
-
 \providecommand{\currentsubexercisepoints}{%
   \if@hkexercise@insubexercise\else%
     \PackageError{hkexercise}{'\string\currentsubexercisepoints' can only be used in subexercise environment}%
@@ -104,8 +98,6 @@
   \fi%
 }
 
-
-
 \providecommand{\currentexercisenumber}{%
   \thehkexercise@exercisecount%
 }
@@ -113,6 +105,7 @@
 \providecommand{\currentsubexercisenumber}{%
   \thehkexercise@subexercisecount%
 }
+
 
 % hooks to modify the exercise typesetting
 \providecommand{\AtBeginExercise}[1]{
@@ -192,15 +185,15 @@
 % itempoints calls points and displays points flush right for use in
 % enumerate environments
 \newcommand{\itempoints}[1]{%
-	\points{#1}\,~\hfill(#1)% 
+  \points{#1}\,~\hfill(#1)% 
 }
 
 
 % getpoints retrieves points for a specific exercise number (starting at 0)
 \newcommand{\getpoints}[1]{%
-	\ifthenelse{#1 < \numberofexercises}%
-	{\hkexercise@readfromaux{points@#1}}%
-	{\textbf{??}}%
+  \ifthenelse{#1 < \numberofexercises}%
+  {\hkexercise@readfromaux{points@#1}}%
+  {\textbf{??}}%
 }
 
 
@@ -248,7 +241,6 @@
 }
 
 
-
 % exercise environment; optional parameter is title of the respective exercise
 \newenvironment{subexercise}[1][]{%
   \if@hkexercise@insubexercise%
@@ -271,6 +263,22 @@
 }
 
 
+\newcommand{\bonuspoints}[1]{%
+  \setlength{\hkexercise@bonuspoints}{#1 pt}%
+  \global\hkexercise@bonuspoints=\hkexercise@bonuspoints%
+}
+
+\newcommand{\getbonuspoints}{%
+  \hkexercise@readfromaux{points@bonus}%
+}
+
+\newcommand{\totalpointswithbonus}{%
+  \readfromaux{totalpointswithbonus}%
+}
+
+
+
+
 % read values from aux file at begin
 \AtBeginDocument{
   \setlength{\hkexercise@totalpoints}{0pt}% reset total points length
@@ -283,6 +291,7 @@
   \fi%
   %
   \renewcommand{\totalpoints}{\hkexercise@readfromaux{points@total}}%
+  \renewcommand{\totalpointswithbonus}{\hkexercise@readfromaux{points@totalwithbonus}}%
 }
 
 
@@ -290,4 +299,9 @@
 \AtEndDocument{
   \hkexercise@storetoaux{numberofexercises}{\thehkexercise@exercisecount}%
   \hkexercise@storetoaux{points@total}{\strip@pt\hkexercise@totalpoints}%
+  \hkexercise@storetoaux{points@bonus}{\strip@pt\hkexercise@bonuspoints}%
+  \newlength{\hkexercise@totalpointswithbonus}%
+  \setlength{\hkexercise@totalpointswithbonus}{\hkexercise@totalpoints}%
+  \addtolength{\hkexercise@totalpointswithbonus}{\hkexercise@bonuspoints}%
+  \hkexercise@storetoaux{points@totalwithbonus}{\strip@pt\hkexercise@totalpointswithbonus}%
 }

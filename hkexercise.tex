@@ -75,7 +75,15 @@
     currentexercisetitle,%
     currentexercisepoints,%
     currentexercisenumber,%
-    exercise%
+    exercise,%
+    currentsubexercisetitle,%
+    currentsubexercisepoints,%
+    currentsubexercisenumber,%
+    subexercise,%
+    bonuspoints,%
+    getbonuspoints,%
+    customlayout,%
+    totalpointswithbonus%
   }
 } 
 
@@ -145,7 +153,7 @@
 \noindent\itshape The hkexercise package provides an exercise environment and several macros to count points for exercises. The actual typesetting of an exercise can be defined by the user.
 \end{abstract}
 
-\section{Introduction and Usage}
+\section{Introduction and Basic Usage}
 This package can be used to facilitate exercise counting and exercise point counting in a \LaTeX-document. It counts the number of exercises (for example, it counted that this document has \emph{\numberofexercises\ exercises}) and it sums all the points of the exercises (for example, the package determined that the exercises in this document have a total of \emph{\totalpoints\ points}). 
 
 Especially for exams it is also common to have an overview of all exercises and their maximal points. This is also supported by this package by providing a macro to retrieve the points of each exercise. For example, the exercise overview for this document is given in Figure~\ref{fig:exercise-overview} below.
@@ -162,7 +170,8 @@ Especially for exams it is also common to have an overview of all exercises and 
       \stepcounter{exercisedisplaynumber}%
       \theexercisedisplaynumber & \getpoints{\theexercisenumber}\\%
     }%
-    $\Sigma$ & \totalpoints%
+    $\Sigma$ & \totalpoints\\\hline%
+    Bonus & \getbonuspoints
   \end{tabular}
   \label{fig:exercise-overview}
   \caption{Overview of all exercises}
@@ -230,8 +239,46 @@ This feature is especially handy if you have an exercise with several subparts (
   \end{enumerate}
 \end{exercise}
 
+\subsection{Count the Total Points}
+If you have typeset your exercises, there are a few commands to obtain the total number of points.
+
+\begin{itemize}
+  \item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash numberofexercises} expands to the number of all exercises in the document.
+  \item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash totalpoints} expands to the sum of all points of all exercises in the document. 
+  \item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash getpoints\{x\}} expands to the total points of the exercise number x (starting with $0$). 
+\end{itemize}
+Note that all of this is retrieved from the .aux file so to get the right numbers here, you have to compile your document twice. As a simple example we take the following code.
+
+
+\begin{lstlisting}[emph={numberofexercises,totalpoints,getpoints}]
+  Exercise 0 has \getpoints{0} points, there are \numberofexercises\ exercises with a total of \totalpoints\ points.
+\end{lstlisting}
+
+\noindent This compiles to the following sentence.\smallskip
+
+Exercise 0 has \getpoints{0} points, there are \numberofexercises\ exercises with a total of \totalpoints\ points.
+
+\subsection{Bonus Points}
+In some courses it is possible to obtain a bonus for the exam. This is implemented here by providing the commands
+\begin{lstlisting}
+  \bonuspoints{x}
+\end{lstlisting}
+which will set the total amount of bonus points to $x$ bonuspoints (in this document we have used it with $x=10$\bonuspoints{10}) and
+\begin{lstlisting}
+  \getbonuspoints
+\end{lstlisting}
+which retrieves the current bonus points (in this document it expands to \getbonuspoints). Please note that the {bonuspoint} command differs from the \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash points} and \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash itempoint} commands in two aspects:
+\begin{itemize} 
+\item Bonus points are \emph{not additive}, i.e., if you use \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash bonuspoints} multiple times in your document, only the last occurence will set the bonus points.
+\item Bonus points are \emph{not} added to the total points. However, there is an additional macro 
+\begin{lstlisting}
+  \totalpointswithbonus
+\end{lstlisting}
+which will expand to the sum of \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash totalpoints} and \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash getbonuspoints}. In this document it thus expands to \totalpointswithbonus.
+\end{itemize}
+
 \subsection{Subexercises}
-... TODO: add text ...  
+... TODO: add text ...
 
 \begin{exercise}[A task with subtasks]
   Let us do something
@@ -265,24 +312,7 @@ This feature is especially handy if you have an exercise with several subparts (
   \end{subexercise}
 \end{exercise}
 
-\subsection{Total Points}
-If you have typeset your exercises, there are a few commands to obtain the total number of points.
 
-\begin{itemize}
-  \item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash numberofexercises} expands to the number of all exercises in the document.
-  \item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash totalpoints} expands to the sum of all points of all exercises in the document. 
-  \item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash getpoints\{x\}} expands to the total points of the exercise number x (starting with $0$). 
-\end{itemize}
-Note that all of this is retrieved from the .aux file so to get the right numbers here, you have to compile your document twice. As a simple example we take the following code.
-
-
-\begin{lstlisting}[emph={numberofexercises,totalpoints,getpoints}]
-  Exercise 0 has \getpoints{0} points, there are \numberofexercises\ exercises with a total of \totalpoints\ points.
-\end{lstlisting}
-
-\noindent This compiles to the following sentence.\smallskip
-
-Exercise 0 has \getpoints{0} points, there are \numberofexercises\ exercises with a total of \totalpoints\ points.
 
 
 \section{Exercise Layout}
@@ -338,7 +368,7 @@ Copyright \copyright\ 2017 Henning Kerstan.\medskip
 
 \section{Version History}
 \begin{description}
-\item[2017/06/27 v1.1.0] Introduction of subexercises. Added several checks to avoid use of commands like \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexercisepoints} outside of exercise environments. New option `customlayout' disables built in exercise layout.
+\item[2017/06/27 v1.1.0] This version introduces subexercises. Moreover several checks were added to avoid use of commands like \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexercisepoints} outside of exercise environments. New option \textcolor{NavyBlue}{\ttfamily\bfseries customlayout} disables built in exercise layout. Added \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash bonuspoint} commands.
 \item[2017/06/26 v1.0.1] Redefined \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexercisepoints} so it can be used within section command. 
 \item[2017/06/26 v1.0] The initial version of this package is published on GitHub.
 \end{description}

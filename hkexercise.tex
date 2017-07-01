@@ -53,6 +53,8 @@
 % set up code listings
 % - highlight standard LaTeX keywords in bold gray
 % - highlight hkexercise keywords in bold navy blue
+\newcommand{\emphstyle}{\ttfamily\color{NavyBlue}\bfseries}%
+\newcommand{\keyword}[1]{\emphstyle #1}%
 \usepackage{listings} 
 \lstset{%
   language=[LaTeX]TeX,%
@@ -63,7 +65,7 @@
   commentstyle=\itshape\color{OliveGreen},% 
   stringstyle=,%
   showstringspaces=false,%
-  emphstyle=\color{NavyBlue}\bfseries,%
+  emphstyle=\emphstyle,%
   breaklines=true,%
   backgroundcolor=\color{black!5},%
   numbers=none,
@@ -75,8 +77,8 @@
     hkexercise,
     AtBeginExercise,%
     AtEndExercise,
-    AtBeginExercisepart,%
-    AtEndExercisepart,%
+    AtBeginSubexercise,%
+    AtEndSubexercise,%
     points,%
     itempoints,%
     totalpoints,%
@@ -85,10 +87,10 @@
     currentexercisepoints,%
     currentexercisenumber,%
     exercise,%
-    currentexerciseparttitle,%
-    currentexercisepartpoints,%
-    currentexercisepartnumber,%
-    exercisepart,%
+    currentsubexercisetitle,%
+    currentsubexercisepoints,%
+    currentsubexercisenumber,%
+    subexercise,%
     bonuspoints,%
     getbonuspoints,%
     customlayout,%
@@ -218,7 +220,7 @@ Now you can typeset your first exercise using the following code.
 As you can see, inside the code we used \textcolor{NavyBlue}{\ttfamily\bfseries \textbackslash points\{2.5\}} to assign this exercise a total of 2.5 points. These points were printed flushed right in the exercise header.
 
 \subsection{Play with the Points}
-If you issue the  \textcolor{NavyBlue}{\ttfamily\bfseries \textbackslash points\{...\}} macro multiple times within an exercise environment, the points will add up. Thus let us consider the following code.
+If you issue the \textcolor{NavyBlue}{\ttfamily\bfseries \textbackslash points\{...\}} macro multiple times within an exercise environment, the points will add up. Thus let us consider the following code.
 
 \begin{lstlisting}
 \begin{exercise}[Simple Equation]
@@ -273,7 +275,7 @@ Exercise 0 has \getpoints{0} points, there are \numberofexercises\ exercises wit
 Exercise 0 has \getpoints{0} points, there are \numberofexercises\ exercises with a total of \totalpoints\ points.
 
 \subsection{Use Bonus Points}
-In some courses it is possible to obtain a bonus for the exam. This is implemented here by providing the commands
+In some courses it is possible to obtain a bonus for the exam. This is supported by providing the commands
 \begin{lstlisting}
 \bonuspoints{x}
 \end{lstlisting}
@@ -291,21 +293,21 @@ which retrieves the current bonus points (in this document it expands to \getbon
 which will expand to the sum of \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash totalpoints} and \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash getbonuspoints}. In this document it thus expands to \totalpointswithbonus.
 \end{itemize}
 
-\subsection{Exerciseparts}
-If you have an exercise with many different parts (for example, if you have one overall topic with several areas), you can use the exercisepart environment to structure your exercise. Exerciseparts work exactly as exercises, but can only be used within an exercise environment. The following is a compiled example of such an exercise.
+\subsection{Subexercises}
+If you have an exercise with many different parts (for example, if you have one overall topic with several areas), you can use the subexercise environment to structure your exercise. Subexercises work exactly as exercises, but can only be used within an exercise environment. The following is a compiled example of such an exercise.
 
 \begin{exercise}[Calculus]
   \vspace{-1em}
-  \begin{exercisepart}[Derivatives]
+  \begin{subexercise}[Derivatives]
     Determine the derivatives of the following functions.
     \begin{enumerate}
       \item $f\colon \mathbb{R} \to \mathbb{R}$, $f(x) = x^2+2x+3$ \itempoints{1}
       \item $g\colon \mathbb{R} \to \mathbb{R}$, $g(x) = \exp(x^2)$ \itempoints{3}
     \end{enumerate}
-  \end{exercisepart}\vspace{-1em}
-  \begin{exercisepart}[Maxima and Minima]
+  \end{subexercise}\vspace{-1em}
+  \begin{subexercise}[Maxima and Minima]
     Determine the local maximum or minimum of the function $f\colon \mathbb{R} \to \mathbb{R}, f(x) = x^2+2x+3$.\points{3}
-  \end{exercisepart}\vspace{-1em}
+  \end{subexercise}\vspace{-1em}
 \end{exercise}
 
 \noindent It was typeset using the following code.
@@ -313,7 +315,7 @@ If you have an exercise with many different parts (for example, if you have one 
 \begin{lstlisting}
 \begin{exercise}[Calculus]
   \vspace{-1em}
-  \begin{exercisepart}[Derivatives]
+  \begin{subexercise}[Derivatives]
     Determine the derivatives of the following functions.
     \begin{enumerate}
       \item $f\colon \mathbb{R} \to \mathbb{R}$, 
@@ -321,16 +323,16 @@ If you have an exercise with many different parts (for example, if you have one 
       \item $g\colon \mathbb{R} \to \mathbb{R}$, 
             $g(x) = \exp(x^2)$ \itempoints{3}
     \end{enumerate}
-  \end{exercisepart}\vspace{-1em}
-  \begin{exercisepart}[Maxima and Minima]
+  \end{subexercise}\vspace{-1em}
+  \begin{subexercise}[Maxima and Minima]
     Determine the local maximum or minimum of the function 
       $f\colon \mathbb{R} \to \mathbb{R}, 
         f(x) = x^2+2x+3$.\points{3}
-  \end{exercisepart}
+  \end{subexercise}
 \end{exercise}
 \end{lstlisting}
 
-\noindent Note that it is only possible to use the exercisepart environment within an exercise environment and it is not possible to nest exercisepart environments.
+\noindent Note that it is only possible to use the subexercise environment within an exercise environment and it is not possible to nest subexercise environments.
 
 \section{Exercise Layout}
 This package only provides a minimal layout style for an exercise which is \emph{not meant to be actually used}. It is just included to test the package functionality.
@@ -340,7 +342,7 @@ If you define your own layout, you can load the package (but it is not necessary
 \begin{lstlisting}
 \usepackage[customlayout]{hkexercise}
 \end{lstlisting}
-which disables the built in exercise style. Note that in this case your document will only compile exercises or exerciseparts if you have defined the respective layout. Otherwise compilation will stop with a package error message.
+which disables the built in exercise style. Note that in this case your document will only compile exercises or subexercises if you have defined the respective layout. Otherwise compilation will stop with a package error message.
 
 \subsection{Define Your Own Layout}
 In order to define how your exercise looks like, you can use the two commands listed below.
@@ -375,18 +377,18 @@ As you can see, there are three useful macros that can be used for defining the 
   \item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexercisepoints} expands to the current exercise total points. Note that this is retrieved from the .aux file so to get the right number here, you have to compile your document twice.
 \end{itemize}
 
-\noindent For exerciseparts you have essentially the same commands, i.e., you have the commands 
+\noindent For subexercises you have essentially the same commands, i.e., you have the commands 
 \begin{itemize}
-\item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash AtBeginExercisePart\{...\}},
-\item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash AtEndExercisePart\{...\}}, 
-\item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexercisepartnumber}, 
-\item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexercisepartpoints} and 
-\item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexerciseparttitle}
+\item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash AtBeginSubexercise\{...\}},
+\item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash AtEndSubexercise\{...\}}, 
+\item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentsubexercisenumber}, 
+\item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentsubexercisepoints} and 
+\item \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentsubexercisetitle}
 \end{itemize}
 which work as their counterparts for exercises.
 
 \subsection{Example Layout Using (Sub-)Sections}
-One option for a custom layout could be to use sections for exercises and subsections for exerciseparts. This can be achieved using the following code.
+One option for a custom layout could be to use sections for exercises and subsections for subexercises. This can be achieved using the following code.
 
 \begin{lstlisting}
 \usepackage[customlayout]{hkexercise}
@@ -398,15 +400,15 @@ One option for a custom layout could be to use sections for exercises and subsec
   }
 }
 \AtEndExercise{\clearpage}
-\AtBeginExercisepart{%
+\AtBeginSubexercise{%
   \subsection{\texorpdfstring{%
-    \currentexerciseparttitle\hfill%
-    (\currentexercisepartpoints~Points)}{%
-    \currentexerciseparttitle %
-    (\currentexercisepartpoints~Points)}%
+    \currentsubexercisetitle\hfill%
+    (\currentsubexercisepoints~Points)}{%
+    \currentsubexercisetitle %
+    (\currentsubexercisepoints~Points)}%
   }
 }
-\AtEndExercisepart{}
+\AtEndSubexercise{}
 \end{lstlisting}
 
 \section{Copyright and License}
@@ -427,7 +429,7 @@ Copyright \copyright\ 2017 Henning Kerstan.\medskip
 
 \section{Version History}
 \begin{description}
-\item[2017/06/27 v1.1.0] This version introduces exerciseparts. Moreover several checks were added to avoid use of commands like \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexercisepoints} outside of exercise environments. New option \textcolor{NavyBlue}{\ttfamily\bfseries customlayout} disables built in exercise layout. Added \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash bonuspoint} commands.
+\item[2017/07/02 v1.1.0] This version introduces subexercises. Moreover several checks were added to avoid use of commands like \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexercisepoints} outside of exercise environments and to prevent nesting of exercises. New option \textcolor{NavyBlue}{\ttfamily\bfseries customlayout} disables built in exercise layout. Added \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash bonuspoint} commands.
 \item[2017/06/26 v1.0.1] Redefined \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexercisepoints} so it can be used within section command. 
 \item[2017/06/26 v1.0] The initial version of this package is published on GitHub.
 \end{description}

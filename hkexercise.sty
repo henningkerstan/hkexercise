@@ -24,7 +24,7 @@
 % package identification
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{hkexercise}[%
-  2017/06/27 v1.1.0-rc1 %
+  2017/07/02 v1.1.0 %
   count exercises and points%
 ]
 
@@ -32,7 +32,7 @@
 % switches for custom exercise layout
 \newif\if@hkexercise@usecustomlayout%
 \newif\if@hkexercise@exercise@layoutdefined%
-\newif\if@hkexercise@exercisepart@layoutdefined%
+\newif\if@hkexercise@subexercise@layoutdefined%
 
 \DeclareOption{customlayout}{%
   \@hkexercise@usecustomlayouttrue%
@@ -48,18 +48,18 @@
 % avoid nesting (i.e. putting exercises in exercises)
 \newif\if@hkexercise@inexercise%
 \global\@hkexercise@inexercisefalse%
-\newif\if@hkexercise@inexercisepart%
-\global\@hkexercise@inexercisepartfalse%
+\newif\if@hkexercise@insubexercise%
+\global\@hkexercise@insubexercisefalse%
 
 
 % counters to store number of exercises
 \newcounter{hkexercise@exercisecount}
-\newcounter{hkexercise@exercisepartcount}[hkexercise@exercisecount]
+\newcounter{hkexercise@subexercisecount}[hkexercise@exercisecount]
 
 
 % lengths to store points
 \newlength{\hkexercise@currentexercisepoints}
-\newlength{\hkexercise@currentexercisepartpoints}
+\newlength{\hkexercise@currentsubexercisepoints}
 \newlength{\hkexercise@totalpoints}
 \newlength{\hkexercise@bonuspoints}
 
@@ -72,11 +72,11 @@
 % macros to get info about current exercise(-part)
 % (to be used in AtBeginExercise or AtEndExercise hooks)
 \providecommand{\currentexercisetitle}{}
-\providecommand{\currentexerciseparttitle}{}
+\providecommand{\currentsubexercisetitle}{}
 
 \providecommand{\currentexercisepoints}{%
   \if@hkexercise@inexercise\else%
-    \PackageError{hkexercise}{'\string\currentexercisepoints' can only be used in exercise or exercisepart environment}%
+    \PackageError{hkexercise}{'\string\currentexercisepoints' can only be used in exercise or subexercise environment}%
   \fi%
   %
   \ifcsname hkexercise@points@\currentexercisenumber\endcsname%
@@ -86,13 +86,13 @@
   \fi%
 }
 
-\providecommand{\currentexercisepartpoints}{%
-  \if@hkexercise@inexercisepart\else%
-    \PackageError{hkexercise}{'\string\currentexercisepartpoints' can only be used in exercisepart environment}%
+\providecommand{\currentsubexercisepoints}{%
+  \if@hkexercise@insubexercise\else%
+    \PackageError{hkexercise}{'\string\currentsubexercisepoints' can only be used in subexercise environment}%
   \fi%
   %
-  \ifcsname hkexercise@points@\currentexercisenumber.\currentexercisepartnumber\endcsname%
-    \@nameuse{hkexercise@points@\currentexercisenumber.\currentexercisepartnumber}%
+  \ifcsname hkexercise@points@\currentexercisenumber.\currentsubexercisenumber\endcsname%
+    \@nameuse{hkexercise@points@\currentexercisenumber.\currentsubexercisenumber}%
   \else%
     \textbf{??}% TODO:issue package warning in such a way that it can be used also in section commands
   \fi%
@@ -102,8 +102,8 @@
   \thehkexercise@exercisecount%
 }
 
-\providecommand{\currentexercisepartnumber}{%
-  \thehkexercise@exercisepartcount%
+\providecommand{\currentsubexercisenumber}{%
+  \thehkexercise@subexercisecount%
 }
 
 
@@ -117,22 +117,22 @@
   \renewcommand{\hkexercise@end}{#1}
 }
 
-% the same for exerciseparts
-\providecommand{\AtBeginexercisepart}[1]{
-  \renewcommand{\hkexercise@part@begin}{#1}
-  \@hkexercise@exercisepart@layoutdefinedtrue%
+% the same for subexercises
+\providecommand{\AtBeginSubexercise}[1]{
+  \renewcommand{\hkexercise@sub@begin}{#1}
+  \@hkexercise@subexercise@layoutdefinedtrue%
 }
 
-\providecommand{\AtEndexercisepart}[1]{
-  \renewcommand{\hkexercise@part@end}{#1}
+\providecommand{\AtEndSubexercise}[1]{
+  \renewcommand{\hkexercise@sub@end}{#1}
 }
 
 
 % storage for the hooks 
 \newcommand{\hkexercise@begin}{}
 \newcommand{\hkexercise@end}{}
-\newcommand{\hkexercise@part@begin}{}
-\newcommand{\hkexercise@part@end}{}
+\newcommand{\hkexercise@sub@begin}{}
+\newcommand{\hkexercise@sub@end}{}
 
 
 % a very simple default exercise style
@@ -151,18 +151,18 @@
   }
   \AtEndExercise{~\smallskip\\}
   %
-  \AtBeginexercisepart{%
+  \AtBeginSubexercise{%
     ~\smallskip\\\sffamily%
-    \ifthenelse{\equal{\currentexerciseparttitle}{}}%
-      {\emph{Part~\currentexercisenumber.\currentexercisepartnumber}} % empty title
+    \ifthenelse{\equal{\currentsubexercisetitle}{}}%
+      {\emph{Exercise~\currentexercisenumber.\currentsubexercisenumber}} % empty title
       {%
-        \emph{Part~\currentexercisenumber.\currentexercisepartnumber:} %
-    \emph{\currentexerciseparttitle}%
+        \emph{Exercise~\currentexercisenumber.\currentsubexercisenumber:} %
+    \emph{\currentsubexercisetitle}%
       }% non-empty title
-    \,~\hfill\emph{(\currentexercisepartpoints~Points)}%
+    \,~\hfill\emph{(\currentsubexercisepoints~Points)}%
     \smallskip\\\noindent\normalfont%
   }
-  \AtEndexercisepart{~\\}
+  \AtEndSubexercise{~\\}
 \fi
 
 
@@ -173,12 +173,12 @@
     \global\hkexercise@currentexercisepoints=\hkexercise@currentexercisepoints%
     \addtolength{\hkexercise@totalpoints}{#1 pt}%
     \global\hkexercise@totalpoints=\hkexercise@totalpoints%
-    \if@hkexercise@inexercisepart%
-      \addtolength{\hkexercise@currentexercisepartpoints}{#1 pt}%
-      \global\hkexercise@currentexercisepartpoints=\hkexercise@currentexercisepartpoints%
+    \if@hkexercise@insubexercise%
+      \addtolength{\hkexercise@currentsubexercisepoints}{#1 pt}%
+      \global\hkexercise@currentsubexercisepoints=\hkexercise@currentsubexercisepoints%
     \fi%
   \else%
-    \PackageError{hkexercise}{\string\points{...} can only be used within exercise or exercisepart environment.}%
+    \PackageError{hkexercise}{\string\points{...} can only be used within exercise or subexercise environment.}%
   \fi%
 }
 
@@ -242,24 +242,24 @@
 
 
 % exercise environment; optional parameter is title of the respective exercise
-\newenvironment{exercisepart}[1][]{%
-  \if@hkexercise@inexercisepart%
-    \PackageError{hkexercise}{You cannot nest exercisepart environments}%
+\newenvironment{subexercise}[1][]{%
+  \if@hkexercise@insubexercise%
+    \PackageError{hkexercise}{You cannot nest subexercise environments}%
   \fi%
   %
-  \if@hkexercise@exercisepart@layoutdefined\else%
-    \PackageError{hkexercise}{Option `customlayout' requires you to define a exercisepart layout using at least `\string\AtBeginexercisepart{...}'}
+  \if@hkexercise@subexercise@layoutdefined\else%
+    \PackageError{hkexercise}{Option `customlayout' requires you to define a subexercise layout using at least `\string\AtBeginSubexercise{...}'}
   \fi%
-  \global\@hkexercise@inexerciseparttrue%
-  \setlength{\hkexercise@currentexercisepartpoints}{0pt}%
-  \global\hkexercise@currentexercisepartpoints=\hkexercise@currentexercisepartpoints%
-  \renewcommand{\currentexerciseparttitle}{#1}%
-  \hkexercise@part@begin%
+  \global\@hkexercise@insubexercisetrue%
+  \setlength{\hkexercise@currentsubexercisepoints}{0pt}%
+  \global\hkexercise@currentsubexercisepoints=\hkexercise@currentsubexercisepoints%
+  \renewcommand{\currentsubexercisetitle}{#1}%
+  \hkexercise@sub@begin%
 }{%
-  \hkexercise@part@end%
-  \hkexercise@storetoaux{points@\thehkexercise@exercisecount.\thehkexercise@exercisepartcount}{\strip@pt\hkexercise@currentexercisepartpoints}%
-  \stepcounter{hkexercise@exercisepartcount}%
-  \global\@hkexercise@inexercisepartfalse%
+  \hkexercise@sub@end%
+  \hkexercise@storetoaux{points@\thehkexercise@exercisecount.\thehkexercise@subexercisecount}{\strip@pt\hkexercise@currentsubexercisepoints}%
+  \stepcounter{hkexercise@subexercisecount}%
+  \global\@hkexercise@insubexercisefalse%
 }
 
 

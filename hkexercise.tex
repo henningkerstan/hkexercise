@@ -54,7 +54,7 @@
 % - highlight standard LaTeX keywords in bold gray
 % - highlight hkexercise keywords in bold navy blue
 \newcommand{\emphstyle}{\ttfamily\color{NavyBlue}\bfseries}%
-\newcommand{\keyword}[1]{\emphstyle#1}%
+\newcommand{\keyword}[1]{{\emphstyle#1}}%
 \usepackage{listings} 
 \lstset{%
   language=[LaTeX]TeX,%
@@ -94,7 +94,8 @@
     bonuspoints,%
     getbonuspoints,%
     customlayout,%
-    totalpointswithbonus%
+    totalpointswithbonus,%
+    setitempointsunit
   }
 } 
 
@@ -247,11 +248,24 @@ This feature is especially handy if you have an exercise with several subparts (
 \end{exercise} 
 \end{lstlisting}
 
-\setitempointsunit{pt}{pts}
 \noindent This code results in the following output.
 \begin{exercise}[Simple Equation]\vspace{-1.5em}
   \begin{enumerate}
     \item Determine $x$ such that $3 \cdot x = 15$.\itempoints{1.5}
+    \item Explain how you arrived at your solution in the previous part.\itempoints{3}
+  \end{enumerate}
+\end{exercise}
+
+Note that by default this only displays the number of points in parentheses. If you want to add a unit, you can use
+\begin{lstlisting}
+\setitempointsunit{pt}{pts}
+\end{lstlisting}
+anywhere in your document which sets \emph{pt} (singular form) and \emph{pts} (plural form) as units for the itempoints. Afterwards, all itempoints will display this unit right of the number.\setitempointsunit{pt}{pts}
+
+\noindent In fact, if we assign the first part of the above exercise just one point instead of 1.5 (replacing \texttt{\textbackslash\keyword{itempoints}\{1.5\}} by \texttt{\textbackslash \keyword{itempoints}\{1\}}), it will result in the following exercise.
+\begin{exercise}[Simple Equation]\vspace{-1.5em}
+  \begin{enumerate}
+    \item Determine $x$ such that $3 \cdot x = 15$.\itempoints{1}
     \item Explain how you arrived at your solution in the previous part.\itempoints{3}
   \end{enumerate}
 \end{exercise}

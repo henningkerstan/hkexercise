@@ -194,9 +194,9 @@
 % enumerate environments
 \RequirePackage{ifthen}
 \newcommand{\itempoints}[1]{%
-  % check if exactly 1 poins
   \points{#1}%
-  \ifthenelse{\equal{#1}{1}}{% todo: make robust so to allow 1.0
+  % check if exactly 1 points
+  \ifthenelse{\equal{#1}{1}}{% not robust, so issuing 1.0 will not result in correct (singular) form!
     \ifthenelse{\equal{\hkexercise@itempointsunit@singular}{}}{%
       \,~\hfill(#1)%
     }{%

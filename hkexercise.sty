@@ -24,7 +24,7 @@
 % package identification
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{hkexercise}[%
-  2017/07/02 v1.1.0 %
+  2017/07/02 v1.2.0-itempoints-unit %
   count exercises and points%
 ]
 
@@ -182,11 +182,36 @@
   \fi%
 }
 
+% itempoints units
+\newcommand{\hkexercise@itempointsunit@singular}{}
+\newcommand{\hkexercise@itempointsunit@plural}{}
+\newcommand{\setitempointsunit}[2]{% singular, plural
+  \renewcommand{\hkexercise@itempointsunit@singular}{#1}%
+  \renewcommand{\hkexercise@itempointsunit@plural}{#2}%
+}
+
 % itempoints calls points and displays points flush right for use in
 % enumerate environments
+\RequirePackage{ifthen}
 \newcommand{\itempoints}[1]{%
-  \points{#1}\,~\hfill(#1)% 
+  % check if exactly 1 poins
+  \points{#1}%
+  \ifthenelse{\equal{#1}{1}}{% todo: make robust so to allow 1.0
+    \ifthenelse{\equal{\hkexercise@itempointsunit@singular}{}}{%
+      \,~\hfill(#1)%
+    }{%
+      \,~\hfill(#1~\hkexercise@itempointsunit@singular)%
+    }%
+  }{%
+    \ifthenelse{\equal{\hkexercise@itempointsunit@plural}{}}{%
+      \,~\hfill(#1)%
+    }{%
+      \,~\hfill(#1~\hkexercise@itempointsunit@plural)%
+    }%
+  }%
 }
+
+
 
 
 % getpoints retrieves points for a specific exercise number (starting at 0)

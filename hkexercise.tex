@@ -54,7 +54,7 @@
 % - highlight standard LaTeX keywords in bold gray
 % - highlight hkexercise keywords in bold navy blue
 \newcommand{\emphstyle}{\ttfamily\color{NavyBlue}\bfseries}%
-\newcommand{\keyword}[1]{\emphstyle #1}%
+\newcommand{\keyword}[1]{\emphstyle#1}%
 \usepackage{listings} 
 \lstset{%
   language=[LaTeX]TeX,%
@@ -247,6 +247,7 @@ This feature is especially handy if you have an exercise with several subparts (
 \end{exercise} 
 \end{lstlisting}
 
+\setitempointsunit{pt}{pts}
 \noindent This code results in the following output.
 \begin{exercise}[Simple Equation]\vspace{-1.5em}
   \begin{enumerate}

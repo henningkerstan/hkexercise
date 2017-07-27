@@ -212,7 +212,7 @@ Now you can typeset your first exercise using the following code.
 \end{exercise}
 \end{lstlisting}
 
-\noindent If you typeset this without further modifications it will yield the following result.
+\noindent If you typeset this without further modifications it will yield the following result.\vspace{1cm}
 
 \begin{exercise}[Simple Addition]
   What is $1+1$?\points{2.5}
@@ -262,7 +262,7 @@ Note that by default this only displays the number of points in parentheses. If 
 \end{lstlisting}
 anywhere in your document which sets \emph{pt} (singular form) and \emph{pts} (plural form) as units for the itempoints. Afterwards, all itempoints will display this unit right of the number.\setitempointsunit{pt}{pts}
 
-\noindent In fact, if we assign the first part of the above exercise just one point instead of 1.5 (replacing \texttt{\textbackslash\keyword{itempoints}\{1.5\}} by \texttt{\textbackslash \keyword{itempoints}\{1\}}), it will result in the following exercise.
+\noindent In fact, if we do this and assign the first part of the above exercise just one point instead of 1.5 (replacing \texttt{\textbackslash\keyword{itempoints}\{1.5\}} by \texttt{\textbackslash \keyword{itempoints}\{1\}}), it will be displayed as follows.
 \begin{exercise}[Simple Equation]\vspace{-1.5em}
   \begin{enumerate}
     \item Determine $x$ such that $3 \cdot x = 15$.\itempoints{1}
@@ -444,6 +444,7 @@ Copyright \copyright\ 2017 Henning Kerstan.\medskip
 
 \section{Version History}
 \begin{description}
+\item[\packageversion] Added the \texttt{\textbackslash\keyword{setitempointsunit}\{...\}} command.
 \item[2017/07/02 v1.1.0] This version introduces subexercises. Moreover several checks were added to avoid use of commands like \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexercisepoints} outside of exercise environments and to prevent nesting of exercises. New option \textcolor{NavyBlue}{\ttfamily\bfseries customlayout} disables built in exercise layout. Added \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash bonuspoint} commands.
 \item[2017/06/26 v1.0.1] Redefined \textcolor{NavyBlue}{\ttfamily\bfseries\textbackslash currentexercisepoints} so it can be used within section command. 
 \item[2017/06/26 v1.0] The initial version of this package is published on GitHub.

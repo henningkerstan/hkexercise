@@ -1,6 +1,8 @@
 # The hkexercise Package
 A LaTeX package to count exercises and points
 
+**NOTE: This package has been renamed to *exercisepoints*. See https://github.com/henningkerstan/exercisepoints for all upcoming development.**
+
 ## Introduction and Usage
 This package can be used to facilitate exercise counting and exercise point counting in a LaTeX-document. It counts the number of exercises and it sums all the points of the exercises in a document. 
 Especially for exams it is also common to have an overview of all exercises and their maximal points. This is also supported by this package by providing a macro to retrieve the points of each exercise.
